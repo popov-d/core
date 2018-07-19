@@ -134,11 +134,23 @@
 			var baseName = t('core', '{fileName} link', {
 				fileName: this.fileInfoModel.get('name')
 			});
-			var name = baseName;
+			function shrinkTo64(str) {
+				function utf8ByteLength(str) {
+					return new Blob([str]).size;
+				}
+				var leave = 31;
+				var shortened = str;
+				while (utf8ByteLength(shortened)>64) {
+					shortened = str.substr(0, leave) + "…" + str.substr(-leave);
+					leave--;
+				}
+				return shortened;
+			}
 
+			var name = shrinkTo64(baseName);
 			while (this.collection.findWhere({name: name})) {
 				index++;
-				name = baseName + ' (' + index + ')';
+				name = shrinkTo64(baseName + ' (' + index + ')');
 			}
 
 			return name;
